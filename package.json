@@ -6,6 +6,7 @@
   "type": "module",
   "scripts": {
     "test": "node --test src/index.test.ts",
+    "test:watch": "node --test --watch src/index.test.ts",
     "test:bun": "bun test src/index.test.ts",
     "start": "node src/index.ts",
     "start:bun": "bun src/index.ts",

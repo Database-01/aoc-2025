@@ -29,17 +29,29 @@ const first = (input: string) => {
       }
     }
   }
-  console.log(invalidIds);
   return invalidIds.reduce((acc, value) => acc + value, 0);
 };
 
 const expectedFirstSolution = 1227775554;
 
+function hasBackReference2(value: number): boolean {
+  const stringValue = value.toString();
+  return /^(\d+)\1+$/.test(stringValue);
+}
+
 const second = (input: string) => {
-  console.log(input);
-  return 'solution 2';
+  const ranges = extractRanges(input);
+  const invalidIds: number[] = [];
+  for (const range of ranges) {
+    for (let i = range.start; i <= range.end; i += 1) {
+      if (hasBackReference2(i)) {
+        invalidIds.push(i);
+      }
+    }
+  }
+  return invalidIds.reduce((acc, value) => acc + value, 0);
 };
 
-const expectedSecondSolution = 'solution 2';
+const expectedSecondSolution = 4174379265;
 
 export { expectedFirstSolution, expectedSecondSolution, first, second };

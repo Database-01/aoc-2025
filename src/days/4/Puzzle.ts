@@ -6,6 +6,7 @@ const LocationType = {
 type Location = (typeof LocationType)[keyof typeof LocationType];
 type Movement = { x: 1 | -1 | 0; y: 1 | -1 | 0 };
 type Directions = 'N' | 'NE' | 'E' | 'SE' | 'S' | 'SW' | 'W' | 'NW';
+type Position = { x: number; y: number };
 
 const Movements = {
   N: { x: -1, y: 0 },
@@ -52,9 +53,42 @@ const first = (input: string) => {
 const expectedFirstSolution = 13;
 
 const second = (input: string) => {
-  return 'solution 2';
+  function checkPosition(x: number, y: number): boolean {
+    if (map[x][y] === LocationType.EMPTY) {
+      return false;
+    }
+    const adjcents = Object.values(Movements)
+      .map((movement: Movement) => {
+        return map[x + movement.x]?.[y + movement.y] ?? '.';
+      })
+      .filter((location) => location === LocationType.PAPER);
+    return adjcents.length < 4;
+  }
+
+  const map = createMap(input);
+  const width = map[0].length;
+  const height = map.length;
+  let result = 0;
+  let previousResult = 0;
+  do {
+    previousResult = result;
+    const locationToChange: Position[] = [];
+    for (let x = 0; x < height; x++) {
+      for (let y = 0; y < width; y++) {
+        if (checkPosition(x, y)) {
+          ++result;
+          locationToChange.push({ x, y });
+        }
+      }
+    }
+    for (const { x, y } of locationToChange) {
+      map[x][y] = LocationType.EMPTY;
+    }
+  } while (result !== previousResult);
+
+  return result;
 };
 
-const expectedSecondSolution = 'solution 2';
+const expectedSecondSolution = 43;
 
 export { expectedFirstSolution, expectedSecondSolution, first, second };

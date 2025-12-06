@@ -27,9 +27,41 @@ const first = (input: string) => {
 const expectedFirstSolution = 4277556;
 
 const second = (input: string) => {
-  return 'solution 2';
+  const [rawOperations, ...rawValues] = input.split('\n').toReversed();
+  const operations = rawOperations
+    .replaceAll(/\s+/gim, ' ')
+    .split(' ')
+    .toReversed() as Operation[];
+  const maxValueLength = Math.max(...rawValues.map((v) => v.length));
+  const values = rawValues.map((v) =>
+    [...v.padEnd(maxValueLength, ' ')].toReversed()
+  );
+  const final = values[0]
+    .map((v, index) => values.map((row) => row[index]).reverse())
+    .map((row) => row.join(''))
+    .map((row) => {
+      if (/^\s+$/.test(row)) {
+        return '';
+      }
+      return Number.parseInt(row, 10);
+    })
+    .reduce((acc: number[][], value: number | '', index: number) => {
+      if (index === 0) {
+        return [[value as number]];
+      }
+      if (typeof value === 'number') {
+        acc.at(-1)!.push(value);
+      } else {
+        acc.push([]);
+      }
+      return acc;
+    }, []);
+  return operations.reduce((acc: number, operation: Operation, index) => {
+    const problemResult = eval(final[index].join(operation));
+    return acc + problemResult;
+  }, 0);
 };
 
-const expectedSecondSolution = 'solution 2';
+const expectedSecondSolution = 3263827;
 
 export { expectedFirstSolution, expectedSecondSolution, first, second };

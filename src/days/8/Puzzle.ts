@@ -96,9 +96,62 @@ const first = (input: string) => {
 const expectedFirstSolution = 40;
 
 const second = (input: string) => {
-  return 'solution 2';
+  const boxes: Box[] = input.split('\n').map((line, index) => {
+    const [x, y, z]: [number, number, number] = line
+      .split(',')
+      .map((value) => Number.parseInt(value, 10)) as [number, number, number];
+    return new Box(`Box ${index}`, x, y, z);
+  });
+  const connections: Connection[] = boxes
+    .reduce((edges: Connection[], currentBox: Box, currentIndex: number) => {
+      for (let i = currentIndex + 1; i < boxes.length; i++) {
+        const nextBox = boxes[i];
+        edges.push({
+          link: new Set([currentBox, nextBox]),
+          distance: calculateDistance(currentBox, nextBox),
+        });
+      }
+      return edges;
+    }, [])
+    .toSorted((a, b) => a.distance - b.distance);
+  const circuits: Set<Circuit> = new Set(boxes.map((b) => new Set([b])));
+  let i = 0;
+  while (i < connections.length - 1 && circuits.size > 1) {
+    const connection = connections[i];
+    if (!connection) {
+      break;
+    }
+    const existingCircuits = [...circuits.keys()].filter(
+      (circuit) => !circuit.isDisjointFrom(connection.link)
+    );
+
+    switch (existingCircuits.length) {
+      case 0:
+        circuits.add(new Set([...connection.link]));
+        break;
+      case 1: {
+        const [source, target] = [...connection.link] as [Box, Box];
+        existingCircuits[0].add(source);
+        existingCircuits[0].add(target);
+        break;
+      }
+      case 2: {
+        const mergedCircuit: Circuit = existingCircuits[0].union(
+          existingCircuits[1]
+        );
+        existingCircuits.forEach((circuit) => {
+          circuits.delete(circuit);
+        });
+        circuits.add(mergedCircuit);
+      }
+    }
+    i++;
+  }
+
+  const [a, b] = [...connections[i - 1].link];
+  return a.x * b.x;
 };
 
-const expectedSecondSolution = 'solution 2';
+const expectedSecondSolution = 25272;
 
 export { expectedFirstSolution, expectedSecondSolution, first, second };
